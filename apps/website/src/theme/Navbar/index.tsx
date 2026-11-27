@@ -23,6 +23,8 @@ import styles from './Navbar.module.css';
 export default function Navbar(): JSX.Element {
   const {pathname} = useLocation();
   const docs = isDocsRoute(pathname);
+  // the blog index is laid out as a site page, so on a phone its nav takes the site pages' content line
+  const blogList = /^\/blog(\/page\/\d+)?\/?$/.test(pathname);
   const sidebar = useNavbarMobileSidebar();
   const nav = useRef<HTMLElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -35,7 +37,7 @@ export default function Navbar(): JSX.Element {
         styles.frame,
         docs && styles.sticky,
         pathname === '/' && styles.home,
-        !docs && pathname !== '/' && styles.page,
+        (!docs || blogList) && pathname !== '/' && styles.page,
         // Infima shows the mobile sidebar under an ancestor with this class
         sidebar.shown && 'navbar-sidebar--show',
       )}>

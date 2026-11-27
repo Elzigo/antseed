@@ -4,7 +4,8 @@ import {TUNING} from './rig';
 
 /* The seed and the mascot. At its mouth it takes the seed: the seed flies in, three bites (the mouth opens and shuts, crumbs of the
    seed's own colours fall), a swallow. The hand is then empty (the system cursor) and a new seed drops on the ground beside it: hover
-   grows it, a click lifts it into the hand. The sequence steps at 24 a second, the films' rate. */
+   grows it, a click lifts it into the hand. A finger has no seed in hand: a tap on the seed on the ground, or on the mascot, feeds it
+   that one. The sequence steps at 24 a second, the films' rate. */
 
 const TICK = 1000 / 24;
 const GRAVITY = 520;
@@ -38,11 +39,16 @@ export class Feeding {
   private crumbs: Crumb[] = [];
   private inks = ['#8a5a3a'];
   private mouth = {x: 0, y: 0, open: false};
+  private touch = false;          // the last press on the card was a finger
 
   constructor(private readonly els: Els, private readonly hand: Hand, private readonly cls: Classes, signal: AbortSignal) {
     loadImage('/site/assets/hero/seed-day.webp').then((img) => { this.inks = inksOf(img); });
+    els.card.addEventListener('pointerdown', (e) => { this.touch = e.pointerType === 'touch'; }, {passive: true, signal});
     els.groundSeed.addEventListener('click', this.lift, {signal});
   }
+
+  /** The last press on the card was a finger. */
+  get byTouch(): boolean { return this.touch; }
 
   get eating(): boolean { return !!this.meal; }
   get busy(): boolean { return this.crumbs.length > 0; }
@@ -107,6 +113,17 @@ export class Feeding {
     }
   }
 
+  /** Feeds it the seed on the ground, for a finger: the seed flies from where it lies, and a new one drops in after the meal. */
+  feed(now: number): void {
+    const {card, groundSeed} = this.els;
+    const on = groundSeed.querySelector('img');
+    if (!this.mouth.open || this.meal || !on || !groundSeed.classList.contains(this.cls.groundOn) || groundSeed.classList.contains(this.cls.groundTaken)) return;
+    const r = card.getBoundingClientRect();
+    const b = on.getBoundingClientRect();
+    this.meal = {start: now, from: [b.left + b.width / 2 - r.left, b.top + b.height / 2 - r.top], bitten: 0};
+    groundSeed.classList.remove(this.cls.groundOn);
+  }
+
   private setEmpty(on: boolean) { this.hand.empty = on; this.els.card.classList.toggle(this.cls.empty, on); }
 
   // a click lifts the seed into the hand: the held seed starts where this one stands, at its size and with its shadow, and eases onto
@@ -116,6 +133,7 @@ export class Feeding {
     const c = this.cls;
     e.stopPropagation();
     if (groundSeed.classList.contains(c.groundTaken)) return;
+    if (this.touch && e.detail) { this.feed(performance.now()); return; }   // a finger: nothing to hold, it feeds the mascot
     const r = card.getBoundingClientRect();
     const on = groundSeed.querySelector('img');
     const held = cursor.querySelector('img');

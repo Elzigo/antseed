@@ -3,6 +3,11 @@
 @media (max-width: 760px) {
   .token .title { font-size: 34px; line-height: 36px; }
 }
+/* side by side under 1440 the column is narrower than either sentence at 48px: the title shrinks so each still holds one line */
+@media (min-width: 900px) and (max-width: 1439px) {
+  .token header:has(> .title) { container-type: inline-size; }
+  .token .title { font-size: min(48px, 100cqi / 11.4); line-height: .96; letter-spacing: -.042em; }
+}
 @media (min-width: 1200px) {
   .token .sub { text-wrap: wrap; }
 }

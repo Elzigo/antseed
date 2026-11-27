@@ -43,15 +43,19 @@ export function useCountUp(ref: RefObject<HTMLElement | null>, text: string): vo
     const el = ref.current;
     if (!el || isStill() || typeof IntersectionObserver === 'undefined') {
       phase.current = 'done';
+      if (el) el.dataset.ready = '';
       return undefined;
     }
     el.textContent = atShare(target.current, START_SHARE);
+    // shown from here (Tally.module.css): the eye never reads the server's full figure, then sees it drop to 70%
+    el.dataset.ready = '';
     let raf = 0;
     const io = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       io.disconnect();
       phase.current = 'counting';
-      const from = parse(el.textContent ?? '')?.value ?? 0;
+      // 70% of where it heads, which is what the element shows while it waits, so the first frame never steps down
+      const from = (parse(target.current)?.value ?? 0) * START_SHARE;
       const t0 = performance.now();
       const frame = (now: number) => {
         const f = parse(target.current);

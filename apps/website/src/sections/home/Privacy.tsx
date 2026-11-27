@@ -47,9 +47,13 @@ export default function Privacy(): JSX.Element {
           <div className={clsx(styles.rail, styles.body)}>
             <div className={styles.points}>
               <PointList points={PRIVACY_POINTS} current={current} choose={choose} labelledBy={TITLE_ID} listRef={list} stacked={stacked} />
+              {/* stacked, the stage has no box (display: contents) and never reveals, so each panel reveals itself: keyed by the layout,
+                  the stacked panels mount anew and the reveal picks them up */}
               <div ref={stage} className={styles.stage} data-rv="panel">
                 <div ref={ant} className={styles.antSeat}><IncognitoAnt /></div>
-                {PRIVACY_POINTS.map((p, i) => <PointPanel key={p.id} point={p} index={i} on={stacked || i === current} stacked={stacked} />)}
+                {PRIVACY_POINTS.map((p, i) => (
+                  <PointPanel key={`${p.id}-${stacked ? 'stacked' : 'tabs'}`} point={p} index={i} on={stacked || i === current} stacked={stacked} />
+                ))}
               </div>
             </div>
           </div>
