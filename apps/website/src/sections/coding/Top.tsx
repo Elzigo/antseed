@@ -20,7 +20,7 @@ export default function Top(): JSX.Element {
       note="Free models to start. No account either way."
       painting={{
         day: '/site/assets/colony/join-day.webp',
-        night: '/site/assets/colony/join-night.webp',
+        night: '/site/assets/colony/join-night-2.webp',
         focus: '30% 50%',
         label: 'Ants sit in a row at laptops on a bench in a meadow while another carries in one more.',
       }}

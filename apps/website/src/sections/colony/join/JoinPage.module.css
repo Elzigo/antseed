@@ -59,8 +59,13 @@
 .artLayer[data-art='name'] { --y: 49%; background-image: url(/site/assets/colony/join/name.webp); }
 .artLayer[data-art='review'] { --y: 48%; background-image: url(/site/assets/colony/join/email.webp); }
 .artLayer[data-art='done'] { --y: 70%; background-image: url(/site/assets/colony/join/done.webp); }
-/* the paintings are daylight only; a visitor who picked dark gets them a little dimmer */
-:global(:root[data-theme='dark']) .artLayer { filter: brightness(.8) saturate(.92); }
+/* the night of each painting in the dark theme ('review' reuses the email painting) */
+:global(:root[data-theme='dark']) .artLayer[data-art='mac'] { background-image: url(/site/assets/colony/join/mac-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='chip'] { background-image: url(/site/assets/colony/join/chip-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='memory'] { background-image: url(/site/assets/colony/join/memory-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='name'] { background-image: url(/site/assets/colony/join/name-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='review'] { background-image: url(/site/assets/colony/join/email-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='done'] { background-image: url(/site/assets/colony/join/done-night.webp); }
 @keyframes jnFade { from { opacity: 0; } }
 
 /* the questions */
@@ -79,6 +84,8 @@
 .question span { color: var(--jn-grey); }
 .question b { font-weight: 400; color: var(--jn-green); }
 .help { max-width: 52ch; margin-top: 14px; font-size: 17px; line-height: 1.55; color: var(--jn-body); }
+/* below the desktop the help line keeps its last word company */
+@media (max-width: 1199px) { .step .help { text-wrap: pretty; } }
 
 /* the options: big cards (the Mac), chips (its chip, its memory) */
 .options { display: grid; gap: 10px; margin-top: 28px; }
@@ -140,7 +147,7 @@
 .page .skip { text-decoration: underline; text-decoration-color: var(--jn-line); }
 .skip:hover { color: var(--jn-ink); }
 .page .skip:hover { text-decoration-color: currentColor; }
-.option:focus-visible, .button:focus-visible, .skip:focus-visible, .field input:focus-visible { outline: 2px solid var(--jn-fill); outline-offset: 2px; }
+.option:focus-visible, .button:focus-visible, .skip:focus-visible, .back:focus-visible, .summary button:focus-visible, .field input:focus-visible { outline: 2px solid var(--jn-fill); outline-offset: 2px; }
 
 /* the name and the email */
 .summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 22px; }
@@ -232,7 +239,9 @@
   .next li > div, .group > div { flex-basis: 100%; }
   .group .button { flex: 1 1 100%; }
   .go .button { flex: 1 1 100%; }
-  /* Back and the answers to change are a thumb's size, Back where it sat */
+}
+/* phones and touch tablets: Back and the answers to change are a thumb's size, Back where it sat */
+@media (max-width: 640px), (pointer: coarse) {
   .back { min-height: 44px; margin: -6px 0 13px; }
   .summary { gap: 8px; }
   .summary button { position: relative; min-height: 36px; padding: 10px 12px; }

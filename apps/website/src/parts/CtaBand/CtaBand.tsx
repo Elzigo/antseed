@@ -29,7 +29,7 @@ export default function CtaBand({titleBreak = false, subWrap = 'balance'}: CtaBa
             <Sub className={clsx(styles.sub, subWrap === 'pretty' && styles.subPretty)}>Antseed runs on your computer. Your chat, your agents and your apps all go through it.</Sub>
           </div>
           <Actions className={styles.actions}>
-            <DownloadButton label="os" size="compact" />
+            <DownloadButton label="os" size="page" />
             <a className={styles.allVersions} href={ALL_VERSIONS_URL} target="_blank" rel="noopener noreferrer">All versions&nbsp;→</a>
           </Actions>
         </div>

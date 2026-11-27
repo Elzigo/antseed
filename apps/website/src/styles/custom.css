@@ -108,6 +108,7 @@
 :root[data-theme='dark'] {
   --ifm-link-hover-color: color-mix(in srgb, var(--site-accent) 75%, #ffffff);
   --as-risk: #e0766c;
+  --ifm-table-stripe-background: transparent;   /* Infima's dark theme sets its own stripes; the tables stay plain as in light */
 }
 
 /* =============================================
@@ -1300,6 +1301,13 @@ details.alert {
 .blog-post-page article header,
 .blog-post-page article .markdown {
   max-width: 752px;
+}
+/* beside the sidebars, the Newer/Older cards end where the post's text does (the article's padding is their inset) */
+@media (min-width: 997px) {
+  .blog-post-page .pagination-nav {
+    max-width: calc(752px + 2 * clamp(24px, 3vw, 36px));
+    padding-inline: clamp(24px, 3vw, 36px);
+  }
 }
 .blog-wrapper hr {
   border-color: var(--as-line);

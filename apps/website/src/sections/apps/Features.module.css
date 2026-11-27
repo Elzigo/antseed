@@ -17,3 +17,5 @@
   .painting { aspect-ratio: 4 / 3; }
   .title { font-size: 18px; line-height: 26px; }
 }
+/* below the desktop the title wraps: 'control.' never on a line of its own */
+@media (max-width: 1199px) { .head { text-wrap: balance; } }

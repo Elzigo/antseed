@@ -49,6 +49,11 @@
   /* a title that wraps on a phone never leaves one word alone */
   .head .title { text-wrap: balance; }
 }
+/* under the desktop, a grey part after a line break is a block of its own (the break is already there: no line is added), so a
+   title that balances balances it too; Chrome's balance stops at a <br> */
+@media (max-width: 1199px) {
+  .title > br + .second { display: block; }
+}
 
 @media (min-width: 1200px) {
   .head.wide { --head-gap: 24px; --title-sub: 16px; --sub-max: 640px; --sub-line: 28px; }

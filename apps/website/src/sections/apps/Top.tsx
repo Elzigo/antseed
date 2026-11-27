@@ -19,7 +19,7 @@ export default function Top(): JSX.Element {
       note="No signup required"
       painting={{
         day: '/site/assets/colony/build-day.webp',
-        night: '/site/assets/colony/build-night.webp',
+        night: '/site/assets/colony/build-night-2.webp',
         focus: '40% 50%',
         label: 'Two ants in a meadow lay out a building plot with stakes and string beside a blank signpost.',
       }}
