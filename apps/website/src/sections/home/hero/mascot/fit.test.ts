@@ -43,3 +43,11 @@ test('on a phone it shows under the title, at most 60% of the card wide', () => 
 test('with no room under a wide title it hides rather than shrink to a speck', () => {
   assert.equal(fit({...PHONE_360, H: 300}).shows, false);
 });
+
+test('on a landscape tablet (1024 × 768) it shows, a third past the right edge beside the install block', () => {
+  const TABLET_1024: Room = {W: 992, H: 625, title: {left: 109, top: 84, right: 883, bottom: 254}, install: {left: 196, top: 280, right: 796, bottom: 432}};
+  const f = fit(TABLET_1024);
+  assert.ok(f.shows);
+  assert.ok(left(TABLET_1024, f) >= TABLET_1024.install!.right + 16, 'clear of the install block');
+  assert.ok(top(TABLET_1024, f.w) >= TABLET_1024.title.bottom, 'below the title');
+});

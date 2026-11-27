@@ -46,7 +46,7 @@ export function Glossary(): JSX.Element {
         <li>
           <strong>Service</strong> - a single model id like{' '}
           <Code>kimi-k2.6</Code> or <Code>deepseek-v4-flash</Code>. <em>This
-          is what you pass as <Code>model</Code> in your tool's config.</em>
+          is what you pass as <Code>model</Code> in your tool's config.</em>{' '}
           Each service has its own native protocol list and{' '}
           <Code>in</Code>/<Code>cachedIn</Code>/<Code>out</Code> pricing.
         </li>

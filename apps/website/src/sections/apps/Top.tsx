@@ -20,7 +20,10 @@ export default function Top(): JSX.Element {
       painting={{
         day: '/site/assets/colony/build-day.webp',
         night: '/site/assets/colony/build-night-2.webp',
-        focus: '40% 50%',
+        // 40% across, with the night's lantern (x 1070-1145 of 1600) never cut in half: whole on its right edge when the panel holds
+        // it and the left ant, otherwise kept out (the painting is 893 high, so 1px of it is 100cqh / 893)
+        focus: 'calc(-1 * min(max(71.67cqh - 40cqw, min(130.46cqh - 100cqw, 1000 * (100cqw - 85.67cqh))), '
+          + 'max(118.7cqh - 100cqw, 1000 * (100cqw - 85.67cqh)))) 50%',
         label: 'Two ants in a meadow lay out a building plot with stakes and string beside a blank signpost.',
       }}
     />

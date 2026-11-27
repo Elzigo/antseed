@@ -80,7 +80,7 @@
 @media (max-width: 760px) {
   .column { gap: 48px; }
   .part { padding-top: 36px; }
-  .partTitle { font-size: 26px; line-height: 30px; }
+  .partTitle { font-size: 26px; line-height: 30px; text-wrap: balance; }
   .envRow { grid-template-columns: 1fr; gap: 2px; }
 }
 /* touch: 44px hit areas, the text where it was */

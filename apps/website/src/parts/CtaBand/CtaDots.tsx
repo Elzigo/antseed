@@ -5,7 +5,7 @@ import {usePageVisible} from '../../lib/usePageVisible';
 import {useSiteTheme} from '../../lib/useSiteTheme';
 import {useStill} from '../../lib/useStill';
 import {Colony, DAY, NIGHT} from './colony';
-import {DOT, centreX, centreY, fitGrid, grade, type Glow, type Grid, type Tiles} from './meadow';
+import {DOT, centreX, centreY, fitGrid, grade, type Glow, type Grid, type Rect, type Tiles} from './meadow';
 import styles from './CtaDots.module.css';
 
 const MAX_DPR = 2;
@@ -16,9 +16,9 @@ type Shape = keyof typeof MEADOWS;
 /** The glow round the words, in multiples of their block: on a phone, where the words fill the card, held close to them. */
 const GLOW = {strength: 0.9, width: 1.2, height: 1.45, soft: 0.65};
 const GLOW_PHONE = {strength: 0.9, width: 0.85, height: 0.95, soft: 0.5};
-/** Night: how strongly the lit dots glow, and how far (px). */
-const LIT_GLOW = 0.6;
-const LIT_BLUR = 7;
+/** Night: how strongly the lit dots glow, and how far (px): a breath, so the button stays the brightest mark. */
+const LIT_GLOW = 0.22;
+const LIT_BLUR = 4;
 
 const images = new Map<string, Promise<HTMLImageElement>>();
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -36,7 +36,13 @@ function glowOf(host: HTMLElement, content: HTMLElement | null): Glow | null {
   const b = host.getBoundingClientRect();
   const c = content.getBoundingClientRect();
   const k = window.matchMedia('(max-width: 760px)').matches ? GLOW_PHONE : GLOW;
-  return {x: c.left - b.left + c.width / 2, y: c.top - b.top + c.height / 2, rx: (c.width / 2) * k.width, ry: (c.height / 2) * k.height, strength: k.strength, soft: k.soft};
+  // the words' own boxes: each line of the title and the sub, and the links (the button), in card px
+  const rects: Rect[] = [];
+  const add = (r: DOMRect) => { if (r.width && r.height) rects.push({l: r.left - b.left, t: r.top - b.top, r: r.right - b.left, b: r.bottom - b.top}); };
+  const range = document.createRange();
+  for (const el of content.querySelectorAll('h2, p')) { range.selectNodeContents(el); for (const r of range.getClientRects()) add(r); }
+  for (const el of content.querySelectorAll('a, button')) add(el.getBoundingClientRect());
+  return {x: c.left - b.left + c.width / 2, y: c.top - b.top + c.height / 2, rx: (c.width / 2) * k.width, ry: (c.height / 2) * k.height, strength: k.strength, soft: k.soft, rects};
 }
 
 /** The meadow at rest, drawn once per size and theme; at night the lit dots' glow is added over it. */
@@ -47,14 +53,14 @@ function paintMeadow(ctx: CanvasRenderingContext2D, g: Grid, t: Tiles, dpr: numb
   const colour = (q: number) => `rgb(${t.rgb[q * 3] | 0},${t.rgb[q * 3 + 1] | 0},${t.rgb[q * 3 + 2] | 0})`;
   for (let q = 0; q < t.alpha.length; q++) if (t.alpha[q]) { ctx.globalAlpha = t.alpha[q]; ctx.fillStyle = colour(q); tile(ctx, q); }
   ctx.globalAlpha = 1;
-  if (!night) return;
+  if (!night || !LIT_GLOW) return;
   // the glow: only the lit dots' blurred shadows (each dot drawn far off to the left, its shadow cast back in place), added on
   const glow = document.createElement('canvas');
   glow.width = ctx.canvas.width; glow.height = ctx.canvas.height;
   const gc = glow.getContext('2d');
   if (!gc) return;
   gc.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const off = g.cols * g.px + 100;
+  const off = ctx.canvas.width / dpr + 100;
   gc.shadowOffsetX = off * dpr;
   gc.shadowBlur = LIT_BLUR * 2 * dpr;
   for (let q = 0; q < t.lit.length; q++) if (t.lit[q] > 0.04) { gc.globalAlpha = t.lit[q]; gc.shadowColor = colour(q); tile(gc, q, off); }

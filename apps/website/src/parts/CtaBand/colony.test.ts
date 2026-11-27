@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {Colony} from './colony.ts';
-import {fitGrid} from './meadow.ts';
+import {centreX, centreY, fitGrid} from './meadow.ts';
 
 /** A phone's card: the words' glow (veil 0) fills the middle, the dots show only in a frame two cells deep. */
 function phone() {
@@ -26,7 +26,7 @@ test('a tap behind the words calls every ant to the nearest cell where they show
   const [gi, gj] = c.ants[0].goal!;
   const edge = Math.min(gi, gj, g.cols - 1 - gi, g.rows - 1 - gj);
   assert.ok(edge < 2, 'the goal is in the visible frame');
-  assert.ok(Math.hypot(gi - x / g.px, gj - y / g.py) < 8, 'and near the tap');
+  assert.ok(Math.hypot(centreX(g, gi) - x, centreY(g, gj) - y) < 124, 'and near the tap');
 });
 
 test('called ants come to the call', () => {

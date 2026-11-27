@@ -27,6 +27,6 @@
 @media (max-width: 1199px) { .split { grid-template-columns: 220px minmax(0, 1fr); } }
 @media (max-width: 760px) {
   .split { grid-template-columns: 1fr; gap: var(--intro-phone-gap, 20px); }
-  .lede { gap: 16px; }
+  .lede { gap: 16px; letter-spacing: -.01em; }   /* as live: phones keep the old tracking */
   .dim { max-width: none; }
 }

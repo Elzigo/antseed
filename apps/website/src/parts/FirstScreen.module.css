@@ -73,8 +73,8 @@
   .panel { aspect-ratio: 1; }
 }
 @media (min-width: 761px) and (max-width: 899px) {
-  /* the right side keeps the narrower 24px inset, so the titles hold their two lines */
-  .text { padding-right: calc(var(--edge) - var(--in) + 24px); }
+  /* the text may run to the rail's edge on the right, so the titles hold their two lines */
+  .text { padding-right: calc(var(--edge) - var(--in)); }
   .panel { aspect-ratio: var(--tablet-ratio, 1); }
 }
 

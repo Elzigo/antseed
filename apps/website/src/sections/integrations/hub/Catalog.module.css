@@ -54,6 +54,12 @@
 @media (max-width: 1023px) {
   .search { width: 100%; }
 }
+/* tablet: the chips and the search wrap as one row of controls, so the last chip shares its row with the search */
+@media (min-width: 761px) and (max-width: 1023px) {
+  .controls { gap: 8px; justify-content: flex-start; }
+  .controls .jump { display: contents; }
+  .controls .search { flex: 1 1 200px; width: auto; }
+}
 /* touch: 44px controls; 16px text keeps iOS from zooming into the field */
 @media (max-width: 760px), (pointer: coarse) {
   .jumpLink { height: 44px; }

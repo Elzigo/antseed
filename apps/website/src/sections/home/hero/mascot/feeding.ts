@@ -15,7 +15,7 @@ const GRIP = 0.5;               // the hand holds the seed this many px above it
 const CRUMB_SHADES = [0.1, 0.3, 0.5, 0.7, 0.85];
 
 type Crumb = {x: number; y: number; vx: number; vy: number; r: number; rot: number; ink: string; life: number};
-type Meal = {start: number; from: [number, number]; bitten: number};
+type Meal = {start: number; from: [number, number]; bitten: number; size: number};   // size: the seed's width as it sets off
 export type MealFrame = {open: number; fly: number};
 
 type Els = {card: HTMLElement; groundSeed: HTMLElement; cursor: HTMLElement};
@@ -58,7 +58,7 @@ export class Feeding {
   /** Takes the seed when it is held at the mouth. */
   tryCatch(now: number, at: {x: number; y: number}, holding: boolean): void {
     if (!this.mouth.open || this.meal || !holding || Math.hypot(at.x - this.mouth.x, at.y - this.mouth.y) >= TUNING.catchReach) return;
-    this.meal = {start: now, from: [this.hand.sx, this.hand.sy], bitten: 0};
+    this.meal = {start: now, from: [this.hand.sx, this.hand.sy], bitten: 0, size: SEED_W};
     this.setEmpty(true);
   }
 
@@ -90,7 +90,7 @@ export class Feeding {
   drawOver(g: CanvasRenderingContext2D, dt: number, fly: number, mx: number, my: number, seed: HTMLImageElement | null): void {
     if (fly >= 0 && seed && this.meal) {
       const e = fly * fly;
-      const q = SEED_W * (1 - 0.8 * e);
+      const q = this.meal.size * (1 - 0.8 * e);
       const [fx, fy] = this.meal.from;
       g.save(); g.translate(fx + (mx - fx) * e, fy + (my - fy) * e); g.rotate(Math.PI);
       g.drawImage(seed, -q / 2, -q * SEED_H / (2 * SEED_W), q, q * SEED_H / SEED_W); g.restore();
@@ -120,7 +120,7 @@ export class Feeding {
     if (!this.mouth.open || this.meal || !on || !groundSeed.classList.contains(this.cls.groundOn) || groundSeed.classList.contains(this.cls.groundTaken)) return;
     const r = card.getBoundingClientRect();
     const b = on.getBoundingClientRect();
-    this.meal = {start: now, from: [b.left + b.width / 2 - r.left, b.top + b.height / 2 - r.top], bitten: 0};
+    this.meal = {start: now, from: [b.left + b.width / 2 - r.left, b.top + b.height / 2 - r.top], bitten: 0, size: b.width};
     groundSeed.classList.remove(this.cls.groundOn);
   }
 

@@ -50,6 +50,7 @@ export class MascotScene {
   private box = {x0: 0, y0: 0, x1: 0, y1: 0};   // the ant's drawn box, card px
   private readonly touchFirst = matchMedia(TOUCH_FIRST).matches;
   private seeded = false;
+  private seedScale = 1;
   private lifts = RIG.arms.map(() => 0);
   private shown = 0; private awake = 0; private gape = 0; private watching = 0;
   private last = performance.now(); private raf = 0; private active = false;
@@ -150,8 +151,10 @@ export class MascotScene {
     this.shown += ((shows ? 1 : 0) - this.shown) * ease(dt, SHOW_SPEED);
     this.box = {x0: fx - bx1 * k, y0: fy + by0 * k, x1: fx - bx0 * k, y1: H};
     groundSeed.style.visibility = this.shown < 0.5 ? 'hidden' : '';
-    // a finger has no seed in hand: it lies on the ground from the start
-    if (this.touchFirst && !this.seeded && !this.still && this.shown > 0.9) { this.seeded = true; groundSeed.classList.add(this.cls.groundOn); }
+    // a finger has no seed in hand: it drops in by the mascot once the painting's cover is gone, as the mascot fades in
+    if (this.touchFirst && !this.seeded && !this.still && this.shown > 0.9 && !card.querySelector('[data-veil], [data-arrival-cover]')) {
+      this.seeded = true; groundSeed.classList.add(this.cls.groundOn);
+    }
     this.leaves.update({fx, fy, k, shown: this.shown});
     if (this.shown <= 0.01) {
       if (this.drawn !== 'gone') { this.drawn = 'gone'; this.pc.setTransform(1, 0, 0, 1, 0, 0); this.pc.clearRect(0, 0, puppet.width, puppet.height); }
@@ -185,7 +188,10 @@ export class MascotScene {
     const irises = this.eyes.step(now, dt, {target, looking: this.look.on || !!meal, cross, attention: meal || cross > 0 ? 1 : Math.max(this.awake, this.watching), awake: this.awake});
     const open = meal ? meal.open : this.gape;
 
-    this.feeding.placeGround(Math.round(fx - bx1 * k - GROUND.left - SEED_W / 2), Math.round(H - GROUND.bottom - SEED_H));
+    // on a touch screen the seed is sized with the mascot (on a phone 0.6 of its desktop size); with a mouse it matches the held one
+    const s = this.touchFirst ? Math.min(1, Math.max(TUNING.minShare, w / TUNING.width)) : 1;
+    if (s !== this.seedScale) { this.seedScale = s; groundSeed.style.setProperty('--seed-k', String(s)); }
+    this.feeding.placeGround(Math.round(fx - bx1 * k - (GROUND.left + SEED_W / 2) * s), Math.round(H - (GROUND.bottom + SEED_H) * s));
     const tips = this.sway ? AntennaSway.tips(now) : [];
     const sig = [W, H, fx, fy, k, this.shown, open, meal?.fly ?? -1, ...irises.flat(), ...this.lifts, ...tips].map((v) => Math.round(v * 20)).join();
     if (sig === this.drawn && !this.feeding.busy) return;

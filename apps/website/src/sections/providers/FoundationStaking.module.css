@@ -6,9 +6,12 @@
 @media (min-width: 900px) and (max-width: 1199px) {
   .staking .rail { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .staking .text { gap: 28px; padding: 72px var(--site-pad) 56px; }
+  /* the ferry file is 659px wide: kept near that size, under the text, so it is not blown up to the rail's width */
+  .staking .panel { width: min(100% - var(--site-pad), 720px); justify-self: start; margin-inline-start: var(--site-pad); aspect-ratio: 16 / 9; }
 }
 @media (max-width: 760px) {
   /* the ferry ant and its coin slide right, so the card sits over the sky and water on their left, clear of the ant's antennae */
-  .panel { --ferry-x: 38%; }
+  .panel { --ferry-x: 46%; }
   .staking .panel .card { top: 5%; left: 5%; width: 52%; }
 }
+@media (max-width: 360px) { .staking .panel { --ferry-x: 38%; } }

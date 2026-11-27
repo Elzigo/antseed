@@ -1,14 +1,15 @@
-/* What moves over the meadow mosaic, from the Meadow hero: ants (small dots inside the big ones) walking the grid a cell at a time,
-   tinting the dots they cross for a moment. A mouse over the card: the nearby ants line up in single file behind it and follow the path
-   it took. A click or a tap on the card: a ring goes out from there across the dots and every ant comes to it, mills about, then
+/* What moves over the meadow mosaic, from the Meadow hero: ants (a darker dot filling its cell) walking the grid a cell at a time,
+   tinting the two or three dots behind them for a moment. A mouse over the card: the nearby ants line up in single file behind it and follow the path
+   it took. A click or a tap on the card: a soft wave of brighter dots goes out once from there and every ant comes to it, mills about, then
    wanders again. With no mouse (a touch screen), now and then one ant leads a few others in a short file of their own. The ants fade
    out in the glow behind the words. */
 import {DOT, centreX, centreY, smooth, type Grid, type Rgb} from './meadow.ts';
 
-const ANT = 7.5;
+/** The ant fills its dot: at the brand's small size a dot inside a dot would not read. */
+const ANT = DOT;
 /** One ant per this many cells. */
-const ANT_PER = 70;
-const MAX_QUEUE = 28;
+const ANT_PER = 170;
+const MAX_QUEUE = 40;
 /** A touch screen's short files: how many follow the leader, how long a file lasts, and the pause between two (ms). */
 const FILE_MIN = 3;
 const FILE_MAX = 5;
@@ -16,22 +17,24 @@ const FILE_TIME = [5000, 7500] as const;
 const FILE_PAUSE = [2500, 6000] as const;
 /** How long called ants stay round the call (ms). */
 const CALLED_TIME = [4000, 5500] as const;
-const TRAIL = 0.3;
-/** Seconds for a trail to fade by half. */
-const TRAIL_HALF = 0.38;
-/** The ring after a click: cells a second, ms. On a small card (a phone) it runs slower, so it is seen crossing the card. */
-const RING_SPEED = 40;
-const RING_MIN_SPEED = 16;
-const RING_CROSSING = 1.1;
-const RING_LIFE = 1500;
-const RING_INKS: Rgb[] = [[0xc8, 0xf5, 0x3c], [0xf6, 0xc4, 0x45], [0xe8, 0x74, 0x2c]];
+const TRAIL = 0.45;
+/** Seconds for a trail to fade by half: about two or three cells behind a walking ant. */
+const TRAIL_HALF = 0.22;
+/** The wave after a click: cells a second, how long it lives (ms), its half-width (cells) and its strongest opacity. On a small card
+ *  (a phone) it runs slower, so it is seen crossing the card. */
+const RING_SPEED = 46;
+const RING_MIN_SPEED = 22;
+const RING_CROSSING = 1.4;
+const RING_LIFE = 1800;
+const RING_WIDTH = 2.6;
+const RING_ALPHA = 0.6;
 /** 60 frames a second within this long of the last input, 30 at rest. */
 const BUSY_MS = 2000;
 const DIRS: readonly [number, number][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
 
-export type Look = {ant: string; trail: Rgb; glow: boolean};
-export const DAY: Look = {ant: '#546818', trail: [0x0a, 0x1a, 0x12], glow: false};
-export const NIGHT: Look = {ant: '#a6e05a', trail: [0x98, 0xc4, 0x63], glow: true};
+export type Look = {ant: string; trail: Rgb; ring: Rgb};
+export const DAY: Look = {ant: '#5d6e2c', trail: [0x5d, 0x6e, 0x2c], ring: [0x74, 0x88, 0x36]};
+export const NIGHT: Look = {ant: '#93b862', trail: [0x84, 0xa8, 0x58], ring: [0xa3, 0xc2, 0x6e]};
 
 type State = 'wander' | 'line' | 'lead' | 'called';
 export type Ant = {i: number; j: number; pi: number; pj: number; t: number; dur: number; dir: number; sense: number; state: State;
@@ -48,7 +51,7 @@ export class Colony {
   queue: Ant[] = [];
   /** A touch screen: short files of their own, as there is no pointer to follow. */
   auto = false;
-  private g: Grid = {cols: 0, rows: 0, px: 1, py: 1};
+  private g: Grid = {cols: 0, rows: 0, px: 1, py: 1, x0: 0, y0: 0};
   private veil: Float32Array = new Float32Array(0);
   private on: Uint8Array = new Uint8Array(0);
   private trail: Float32Array = new Float32Array(0);
@@ -60,8 +63,7 @@ export class Colony {
   private nextFile = 0;
   private last = 0;
   private lastInput = -Infinity;
-  private sprite: HTMLCanvasElement | null = null;
-
+  
   /** A new grid starts the ants afresh; the same grid (a new glow or theme) keeps them walking. */
   reset(g: Grid, veil: Float32Array, on: Uint8Array): void {
     const same = g.cols === this.g.cols && g.rows === this.g.rows;
@@ -121,7 +123,7 @@ export class Colony {
   /** The moving layer over the mosaic at rest: the trails, the ring, the ants. */
   draw(ctx: CanvasRenderingContext2D, now: number, look: Look): void {
     const {g} = this;
-    ctx.clearRect(0, 0, g.cols * g.px, g.rows * g.py);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
     const paint = (q: number, [r, gr, b]: Rgb, a: number) => {
       ctx.globalAlpha = Math.min(1, a);
       ctx.fillStyle = `rgb(${r},${gr},${b})`;
@@ -136,17 +138,16 @@ export class Colony {
       const age = now - r.start;
       const speed = Math.max(RING_MIN_SPEED, Math.min(RING_SPEED, Math.hypot(g.cols, g.rows) / RING_CROSSING));
       const radius = (age / 1000) * speed;
-      const fade = (1 - age / RING_LIFE) * 0.85;
+      const life = age / RING_LIFE;
+      const fade = RING_ALPHA * Math.sin((Math.PI / 2) * Math.min(1, life * 5)) * (1 - life) ** 1.5;   // eases in, then out: no flash
       for (let q = 0; q < this.on.length; q++) {
         if (!this.on[q]) continue;
         const i = q % g.cols;
         const j = Math.floor(q / g.cols);
-        const band = Math.abs(Math.hypot(i - r.i, j - r.j) - radius);
-        if (band < 1.5) paint(q, RING_INKS[Math.min(2, Math.floor(band))], fade * (0.2 + 0.8 * this.clear(i, j)));   // faint behind the words
+        const band = (Math.hypot(i - r.i, j - r.j) - radius) / RING_WIDTH;
+        if (Math.abs(band) < 2) paint(q, look.ring, fade * Math.exp(-band * band) * this.clear(i, j));   // none behind the words
       }
     }
-    const sprite = look.glow ? this.spriteFor(look.ant, ctx) : null;
-    const half = sprite ? sprite.width / 2 / devicePixelScale(ctx) : 0;
     ctx.fillStyle = look.ant;
     for (const a of this.ants) {
       const e = a.t < 1 ? a.t * a.t * (3 - 2 * a.t) : 1;
@@ -156,8 +157,7 @@ export class Colony {
       ctx.globalAlpha = alpha;
       const x = centreX(g, a.pi + (a.i - a.pi) * e);
       const y = centreY(g, a.pj + (a.j - a.pj) * e);
-      if (sprite) ctx.drawImage(sprite, x - half, y - half, half * 2, half * 2);
-      else { ctx.beginPath(); ctx.arc(x, y, ANT / 2, 0, Math.PI * 2); ctx.fill(); }
+      ctx.beginPath(); ctx.arc(x, y, ANT / 2, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
@@ -167,7 +167,7 @@ export class Colony {
 
   private cellOf(x: number, y: number): [number, number] {
     const {g} = this;
-    return [Math.max(0, Math.min(g.cols - 1, Math.floor(x / g.px))), Math.max(0, Math.min(g.rows - 1, Math.floor(y / g.py)))];
+    return [Math.max(0, Math.min(g.cols - 1, Math.floor((x - g.x0) / g.px))), Math.max(0, Math.min(g.rows - 1, Math.floor((y - g.y0) / g.py)))];
   }
 
   /** The cell nearest (i, j) where an ant shows (clear of the words), so a call near the words gathers the ants beside them. */
@@ -275,28 +275,4 @@ export class Colony {
     a.dir = d; a.i = ni; a.j = nj;
     if (a === this.leader) this.track([ni, nj]);
   }
-
-  /** Night: the ant's dot with its glow, drawn once and then laid down whole. */
-  private spriteFor(ink: string, ctx: CanvasRenderingContext2D): HTMLCanvasElement {
-    const scale = devicePixelScale(ctx);
-    const key = `${ink}@${scale}`;
-    if (this.sprite?.dataset.key === key) return this.sprite;
-    const blur = ANT * 0.9;
-    const m = Math.ceil(ANT / 2 + blur * 1.5);
-    const c = document.createElement('canvas');
-    c.width = c.height = Math.ceil(m * 2 * scale);
-    c.dataset.key = key;
-    const s = c.getContext('2d');
-    if (s) {
-      s.scale(scale, scale);
-      s.fillStyle = s.shadowColor = ink;
-      const dot = () => { s.beginPath(); s.arc(m, m, ANT / 2, 0, Math.PI * 2); s.fill(); };
-      s.shadowBlur = blur * scale; dot(); s.shadowBlur = 0; dot();
-    }
-    this.sprite = c;
-    return c;
-  }
 }
-
-/** The canvas's device pixels per CSS pixel (its transform's scale). */
-const devicePixelScale = (ctx: CanvasRenderingContext2D): number => ctx.getTransform().a || 1;

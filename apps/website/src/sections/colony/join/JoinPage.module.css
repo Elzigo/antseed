@@ -40,6 +40,11 @@
 /* the bar: logo, progress, step count, close */
 .bar { position: relative; z-index: 3; display: flex; align-items: center; gap: 20px; height: 68px; padding: 0 24px; }
 .logo img { display: block; width: auto; height: 28px; }
+/* touch screens: a 44px tall touch area round the logo */
+@media (max-width: 1079px) {
+  .bar .logo { position: relative; }
+  .bar .logo::after { content: ''; position: absolute; inset: -12px 0; }
+}
 :global(:root[data-theme='dark']) .logo img { filter: invert(.93); }
 .progress { flex: 1; max-width: 520px; height: 6px; margin: 0 auto; overflow: hidden; border-radius: 3px; background: var(--jn-tile-hover); }
 .progressFill { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--jn-fill); transition: width .35s cubic-bezier(.3, .7, .2, 1); }
@@ -65,7 +70,7 @@
 :global(:root[data-theme='dark']) .artLayer[data-art='memory'] { background-image: url(/site/assets/colony/join/memory-night.webp); }
 :global(:root[data-theme='dark']) .artLayer[data-art='name'] { background-image: url(/site/assets/colony/join/name-night.webp); }
 :global(:root[data-theme='dark']) .artLayer[data-art='review'] { background-image: url(/site/assets/colony/join/email-night.webp); }
-:global(:root[data-theme='dark']) .artLayer[data-art='done'] { background-image: url(/site/assets/colony/join/done-night.webp); }
+:global(:root[data-theme='dark']) .artLayer[data-art='done'] { background-image: url(/site/assets/colony/join/done-night-2.webp); }
 @keyframes jnFade { from { opacity: 0; } }
 
 /* the questions */

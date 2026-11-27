@@ -217,6 +217,10 @@ h1, h2, h3 {
   .theme-announcement-bar .close {
     flex: 0 0 44px;
   }
+  /* the left placeholder matches it, so the message stays centred */
+  .theme-announcement-bar > [class*='announcementBarPlaceholder'] {
+    flex: 0 0 44px;
+  }
 }
 
 .funding-announcement:focus-visible {
@@ -268,6 +272,9 @@ h1, h2, h3 {
 }
 
 .navbar-sidebar__back {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--as-font-nav);
   color: var(--as-text-2);
   background: var(--as-soil-0);
@@ -483,6 +490,12 @@ aside.theme-doc-sidebar-container {
 .theme-doc-toc-mobile {
   background: var(--as-soil-0);
   border: 1px solid var(--as-line);
+}
+/* touch screens: the 'On this page' toggle 44px tall */
+@media (max-width: 1079px) {
+  .theme-doc-toc-mobile > .clean-btn {
+    min-height: 44px;
+  }
 }
 
 /* "Last updated" + edit row */
@@ -1004,6 +1017,13 @@ details.alert {
   margin-bottom: 12px;
 }
 
+/* a phone: a legal title that wraps never leaves one word alone */
+@media (max-width: 760px) {
+  [class*='mdxPageWrapper'] article :is(h1, h2) {
+    text-wrap: balance;
+  }
+}
+
 [class*='mdxPageWrapper'] article h3 {
   font-family: var(--as-font-display);
   font-size: 18px;
@@ -1241,6 +1261,17 @@ details.alert {
   color: var(--as-heading) !important;
   text-decoration: none;
 }
+/* touch screens: a 44px tall touch area, the name where it was */
+@media (max-width: 1079px) {
+  .blog-wrapper .avatar__name a {
+    position: relative;
+  }
+  .blog-wrapper .avatar__name a::after {
+    content: '';
+    position: absolute;
+    inset: -12px 0;
+  }
+}
 .blog-wrapper .avatar__subtitle,
 .blog-wrapper [class*='authorTitle'] {
   font-family: var(--as-font-ui);
@@ -1299,7 +1330,8 @@ details.alert {
 
 /* the docs' reading measure: lines no longer than in the docs column */
 .blog-post-page article header,
-.blog-post-page article .markdown {
+.blog-post-page article .markdown,
+.blog-post-page article footer {
   max-width: 752px;
 }
 /* beside the sidebars, the Newer/Older cards end where the post's text does (the article's padding is their inset) */

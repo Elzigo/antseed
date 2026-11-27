@@ -36,6 +36,8 @@
 }
 @media (max-width: 760px) {
   .providers .rail { padding: 72px 0; }
+  /* the whole title balances as one block here, so each part breaks in two even lines */
+  .head .title > br + span { display: inline; }
   .paths { grid-template-columns: 1fr; margin-top: 40px; padding: 0 16px; }
   .path + .path { margin-top: 56px; }
   .path { transition-delay: 0s; }

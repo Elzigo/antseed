@@ -36,7 +36,7 @@ export default function Privacy(): JSX.Element {
     <Section cmp="home/privacy" id="privacy" labelledBy={TITLE_ID} bare className={styles.privacy}>
       <div ref={hold} className={styles.hold} data-privacy="">
         <div ref={pin} className={styles.pin}>
-          <PrivacyDots quietRef={head} />
+          <PrivacyDots quietRef={head} clearRef={stage} />
           <div className={clsx(styles.rail, styles.top)}>
             <header ref={head} className={styles.head}>
               <EyebrowLink to="/docs/security/" className={styles.eyebrow}>Privacy and trust</EyebrowLink>

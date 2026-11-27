@@ -47,7 +47,7 @@
   .frame .actions .themeSwitch { margin-right: 0; }   /* its margin parts it from the Gateway button, hidden here */
   .frame.page .nav { padding-inline: calc((100% - var(--site-rail)) / 2 + 20px); }
 }
-/* the blog index's row also carries the search: on the narrowest phones it only fits in the docs' gutter */
+/* the blog index's and the integrations' row also carries the search: on the narrowest phones it only fits in the docs' gutter */
 @media (max-width: 359px) {
-  .frame.page.sticky .nav { padding-inline: 16px; }
+  .frame.page.searchRow .nav { padding-inline: 16px; }
 }
